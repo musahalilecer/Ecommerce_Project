@@ -9,6 +9,6 @@ public interface CountryService {
     List<CountryResponse> getAllCountries();
     CountryResponse getCountryById(int id);
     CountryResponse addCountry(CountryRequest countryRequest);
-    CountryResponse updateCountry(CountryRequest countryRequest);
+    CountryResponse updateCountry(int id, CountryRequest countryRequest);
     CountryResponse deleteCountry(int id);
 }

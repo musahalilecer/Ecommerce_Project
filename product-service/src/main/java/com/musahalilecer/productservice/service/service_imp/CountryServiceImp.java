@@ -25,7 +25,7 @@ public class CountryServiceImp implements CountryService {
     }
 
     @Override
-    public CountryResponse updateCountry(CountryRequest countryRequest) {
+    public CountryResponse updateCountry(int id, CountryRequest countryRequest) {
         return null;
     }
 

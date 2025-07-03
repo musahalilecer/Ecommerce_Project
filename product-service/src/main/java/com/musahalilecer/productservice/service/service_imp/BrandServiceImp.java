@@ -12,7 +12,9 @@ import com.musahalilecer.productservice.repository.ProductRepository;
 import com.musahalilecer.productservice.service.service.BrandService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +48,51 @@ public class BrandServiceImp implements BrandService {
     public BrandResponse addBrand(BrandRequest brandRequest) {
         Brand newBrand = brandMapper.toEntity(brandRequest);
         Category category = categoryRepository.findById(brandRequest.getCategoryId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+        newBrand.setCategory(category);
+        if (brandRequest.getProductIds() != null) {
+            List<Product> products = productRepository.findAllById(brandRequest.getProductIds());
+            newBrand.setProducts(products);
+        }
+        Brand saved = brandDao.createBrand(newBrand);
+        return brandMapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public BrandResponse updateBrand(BrandRequest brandRequest, int id) {
+        Brand existing = brandDao.getBrandById(id);
+        if (existing == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found");
+        }
+        existing.setBrandName(brandRequest.getBrandName());
+        Category category = categoryRepository.findById(brandRequest.getCategoryId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+        existing.setCategory(category);
+        if (brandRequest.getProductIds() != null) {
+            List<Product> products = productRepository.findAllById(brandRequest.getProductIds());
+            existing.setProducts(products);
+        }
+        Brand updated = brandDao.updateBrand(id, existing);
+        return brandMapper.toResponse(updated);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteBrand(int id) {
+        brandDao.getBrandById(id);
+        brandDao.deleteBrand(id);
+    }
+}
+
+
+/*
+@Override
+    @Transactional
+    public BrandResponse addBrand(BrandRequest brandRequest) {
+        Brand newBrand = brandMapper.toEntity(brandRequest);
+        Category category = categoryRepository.findById(brandRequest.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         newBrand.setCategory(category);
         List<Product> products = productRepository.findAllById(brandRequest.getProductIds());
@@ -67,11 +114,4 @@ public class BrandServiceImp implements BrandService {
         Brand updatedBrand = brandDao.updateBrand(id, existingBrand);
         return brandMapper.toResponse(updatedBrand);
     }
-
-    @Override
-    @Transactional
-    public void deleteBrand(int id) {
-        brandDao.getBrandById(id);
-        brandDao.deleteBrand(id);
-    }
-}
+ */
