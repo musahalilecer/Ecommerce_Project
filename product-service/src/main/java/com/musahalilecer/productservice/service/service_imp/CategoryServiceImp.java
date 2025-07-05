@@ -1,7 +1,6 @@
 package com.musahalilecer.productservice.service.service_imp;
 
 import com.musahalilecer.productservice.dao.dao_abstract.CategoryDao;
-import com.musahalilecer.productservice.dao.dao_abstract.ProductDao;
 import com.musahalilecer.productservice.dto.request.CategoryRequest;
 import com.musahalilecer.productservice.dto.response.CategoryResponse;
 import com.musahalilecer.productservice.mapper.CategoryMapper;
@@ -24,32 +23,30 @@ public class CategoryServiceImp implements CategoryService {
     @Autowired
     private CategoryDao categoryDao;
     @Autowired
-    private CategoryMapper categoryMapper;
-    @Autowired
     private ProductRepository productRepository;
 
     @Override
     public List<CategoryResponse> getAllCategories() {
         List<Category> categories = categoryDao.getAllCategories();
-        return categories.stream().map(categoryMapper::toResponse).collect(Collectors.toList());
+        return categories.stream().map(CategoryMapper::toResponse).collect(Collectors.toList());
     }
 
     @Override
     public CategoryResponse getCategoryById(int id) {
         Category category = categoryDao.getCategoryById(id);
-        return categoryMapper.toResponse(category);
+        return CategoryMapper.toResponse(category);
     }
 
     @Override
     @Transactional
     public CategoryResponse addCategory(CategoryRequest categoryRequest) {
-        Category newCategory = categoryMapper.toEntity(categoryRequest);
+        Category newCategory = CategoryMapper.toEntity(categoryRequest);
         if (categoryRequest.getProductIds() != null) {
             List<Product> products = productRepository.findAllById(categoryRequest.getProductIds());
             newCategory.setProducts(products);
         }
         Category saved = categoryDao.addCategory(newCategory);
-        return categoryMapper.toResponse(saved);
+        return CategoryMapper.toResponse(saved);
     }
 
     @Override
@@ -65,7 +62,7 @@ public class CategoryServiceImp implements CategoryService {
             existing.setProducts(products);
         }
         Category updated = categoryDao.updateCategory(existing, id);
-        return categoryMapper.toResponse(updated);
+        return CategoryMapper.toResponse(updated);
     }
 
     @Override

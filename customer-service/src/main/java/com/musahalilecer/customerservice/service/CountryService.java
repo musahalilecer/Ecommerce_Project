@@ -9,10 +9,12 @@ import com.musahalilecer.customerservice.model.Customer;
 import com.musahalilecer.customerservice.repository.CityRepository;
 import com.musahalilecer.customerservice.repository.CountryRepository;
 import com.musahalilecer.customerservice.repository.CustomerRepository;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,34 +31,93 @@ public class CountryService {
     private CustomerRepository customerRepository;
 
     public List<CountryResponse> getAllCountries() {
-        List<Country> countries = countryRepository.findAll();
-        return countries.stream()
-                .map(countryMapper::toResponse)
+        return countryRepository.findAll().stream()
+                .map(country -> {
+                    CountryResponse dto = countryMapper.toResponse(country);
+                    List<Integer> cityIds = country.getCities() != null
+                            ? country.getCities().stream().map(City::getId).collect(Collectors.toList())
+                            : List.of();
+                    dto.setCityIds(cityIds);
+                    List<Integer> customerIds = country.getCustomers() != null
+                            ? country.getCustomers().stream().map(Customer::getId).collect(Collectors.toList())
+                            : List.of();
+                    dto.setCustomerIds(customerIds);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     public CountryResponse getCountryById(int id) {
-        var country = countryRepository.findById(id).orElseThrow(() -> new NotFoundException("Country not found"));
-        return countryMapper.toResponse(country);
+        Country country = countryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found: " + id));
+        CountryResponse dto = countryMapper.toResponse(country);
+        List<Integer> cityIds = country.getCities() != null
+                ? country.getCities().stream().map(City::getId).collect(Collectors.toList())
+                : List.of();
+        dto.setCityIds(cityIds);
+        List<Integer> customerIds = country.getCustomers() != null
+                ? country.getCustomers().stream().map(Customer::getId).collect(Collectors.toList())
+                : List.of();
+        dto.setCustomerIds(customerIds);
+        return dto;
     }
 
     @Transactional
-    public CountryResponse createCountry(CountryRequest countryRequest) {
-        Country newCountry = countryMapper.toEntity(countryRequest);
-        if(countryRequest.getCityIds() != null) {
-            List<City> cities = cityRepository.findAllById(countryRequest.getCityIds());
-            newCountry.setCities(cities);
+    public CountryResponse createCountry(CountryRequest request) {
+        Country country = countryMapper.toEntity(request);
+        if (request.getCityIds() != null) {
+            List<City> cities = cityRepository.findAllById(request.getCityIds());
+            country.setCities(cities);
         }
-        if(countryRequest.getCustomerIds() != null) {
-            List<Customer> customers = customerRepository.findAllById(countryRequest.getCustomerIds());
-            newCountry.setCustomers(customers);
+        if (request.getCustomerIds() != null) {
+            List<Customer> customers = customerRepository.findAllById(request.getCustomerIds());
+            country.setCustomers(customers);
         }
-        Country savedCountry = countryRepository.save(newCountry);
-        CountryResponse response = countryMapper.toResponse(savedCountry);
-        response.setCustomerIds(savedCountry.getCustomers().stream().map(Customer::getId).collect(Collectors.toList()));
-        response.setCityIds(savedCountry.getCities().stream().map(City::getId).collect(Collectors.toList()));
-        return response;
+        Country saved = countryRepository.save(country);
+        CountryResponse dto = countryMapper.toResponse(saved);
+        List<Integer> cityIds = saved.getCities() != null
+                ? saved.getCities().stream().map(City::getId).collect(Collectors.toList())
+                : List.of();
+        dto.setCityIds(cityIds);
+        List<Integer> customerIds = saved.getCustomers() != null
+                ? saved.getCustomers().stream().map(Customer::getId).collect(Collectors.toList())
+                : List.of();
+        dto.setCustomerIds(customerIds);
+        return dto;
     }
 
+    @Transactional
+    public CountryResponse updateCountry(int id, CountryRequest request) {
+        Country country = countryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found: " + id));
+        country.setCountryName(request.getCountryName());
+        country.setCountryCode(request.getCountryCode());
+        country.setCountryFlag(request.getCountryFlag());
+        if (request.getCityIds() != null) {
+            List<City> cities = cityRepository.findAllById(request.getCityIds());
+            country.setCities(cities);
+        }
+        if (request.getCustomerIds() != null) {
+            List<Customer> customers = customerRepository.findAllById(request.getCustomerIds());
+            country.setCustomers(customers);
+        }
+        Country saved = countryRepository.save(country);
+        CountryResponse dto = countryMapper.toResponse(saved);
+        List<Integer> cityIds = saved.getCities() != null
+                ? saved.getCities().stream().map(City::getId).collect(Collectors.toList())
+                : List.of();
+        dto.setCityIds(cityIds);
+        List<Integer> customerIds = saved.getCustomers() != null
+                ? saved.getCustomers().stream().map(Customer::getId).collect(Collectors.toList())
+                : List.of();
+        dto.setCustomerIds(customerIds);
+        return dto;
+    }
 
+    @Transactional
+    public void deleteCountry(int id) {
+        Country country = countryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found: " + id));
+        countryRepository.delete(country);
+    }
 }

@@ -4,7 +4,6 @@ import com.musahalilecer.productservice.dao.dao_abstract.CategoryDao;
 import com.musahalilecer.productservice.dao.dao_abstract.ProductDao;
 import com.musahalilecer.productservice.dao.dao_imp.AdressDaoImp;
 import com.musahalilecer.productservice.dao.dao_imp.BrandDaoImp;
-import com.musahalilecer.productservice.dao.dao_imp.CountryDaoImp;
 import com.musahalilecer.productservice.dto.request.ProductRequest;
 import com.musahalilecer.productservice.dto.response.ProductResponse;
 import com.musahalilecer.productservice.exception.NotFoundException;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,8 +25,6 @@ public class ProductServiceImp implements ProductService {
 
     @Autowired
     private ProductDao productDao;
-    @Autowired
-    private ProductMapper productMapper;
     @Autowired
     private AdressDaoImp adressDaoImp;
     @Autowired
@@ -46,7 +42,7 @@ public class ProductServiceImp implements ProductService {
     @Override
     public List<ProductResponse> getProducts() {
         List<Product> products = productDao.getAllProducts();
-        var productResponses = products.stream().map(productMapper::toResponse).collect(Collectors.toList());
+        var productResponses = products.stream().map(ProductMapper::toResponse).collect(Collectors.toList());
         return productResponses;
     }
 
@@ -56,7 +52,7 @@ public class ProductServiceImp implements ProductService {
         if(id != product.getId()){
             throw new NotFoundException("Product not found");
         }
-        return productMapper.toResponse(product);
+        return ProductMapper.toResponse(product);
     }
 
 
@@ -68,9 +64,9 @@ public class ProductServiceImp implements ProductService {
         productRequest.setCategoryId(category.getId());
         productRequest.setAdressId(adress.getId());
         productRequest.setBrandId(brand.getId());
-        Product newProduct = productMapper.toEntity(productRequest);
+        Product newProduct = ProductMapper.toEntity(productRequest);
         Product saveProduct = productDao.addProduct(newProduct);
-        return productMapper.toResponse(saveProduct);
+        return ProductMapper.toResponse(saveProduct);
     }
 
     @Override
@@ -89,7 +85,7 @@ public class ProductServiceImp implements ProductService {
         existingProduct.setName(productRequest.getName());
 
         Product product = productDao.addProduct(existingProduct);
-        return productMapper.toResponse(product);
+        return ProductMapper.toResponse(product);
     }
 
     @Override

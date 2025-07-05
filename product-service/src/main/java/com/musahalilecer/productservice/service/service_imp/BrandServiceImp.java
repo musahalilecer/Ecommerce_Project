@@ -25,8 +25,6 @@ public class BrandServiceImp implements BrandService {
     @Autowired
     private BrandDaoImp brandDao;
     @Autowired
-    private BrandMapper brandMapper;
-    @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductRepository productRepository;
@@ -34,19 +32,19 @@ public class BrandServiceImp implements BrandService {
     @Override
     public List<BrandResponse> getAllBrands() {
         List<Brand> brands = brandDao.getAllBrands();
-        return brands.stream().map(brandMapper::toResponse).collect(Collectors.toList());
+        return brands.stream().map(BrandMapper::toResponse).collect(Collectors.toList());
     }
 
     @Override
     public BrandResponse getBrandById(int id) {
         Brand brand = brandDao.getBrandById(id);
-        return brandMapper.toResponse(brand);
+        return BrandMapper.toResponse(brand);
     }
 
     @Override
     @Transactional
     public BrandResponse addBrand(BrandRequest brandRequest) {
-        Brand newBrand = brandMapper.toEntity(brandRequest);
+        Brand newBrand = BrandMapper.toEntity(brandRequest);
         Category category = categoryRepository.findById(brandRequest.getCategoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
         newBrand.setCategory(category);
@@ -55,7 +53,7 @@ public class BrandServiceImp implements BrandService {
             newBrand.setProducts(products);
         }
         Brand saved = brandDao.createBrand(newBrand);
-        return brandMapper.toResponse(saved);
+        return BrandMapper.toResponse(saved);
     }
 
     @Override
@@ -74,7 +72,7 @@ public class BrandServiceImp implements BrandService {
             existing.setProducts(products);
         }
         Brand updated = brandDao.updateBrand(id, existing);
-        return brandMapper.toResponse(updated);
+        return BrandMapper.toResponse(updated);
     }
 
 

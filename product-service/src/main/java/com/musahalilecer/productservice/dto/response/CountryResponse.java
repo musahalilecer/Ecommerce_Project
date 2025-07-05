@@ -1,15 +1,17 @@
 package com.musahalilecer.productservice.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Data
-@NoArgsConstructor
+@Builder
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class CountryResponse {
+
     private Integer id;
     private String countryName;
     private String flag;

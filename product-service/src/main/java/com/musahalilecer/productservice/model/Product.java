@@ -1,14 +1,19 @@
 package com.musahalilecer.productservice.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.smartcardio.Card;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "products")
 public class Product {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -28,8 +33,4 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "adress_id")
     private Adress adress;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "card_id")
-    private CardItem card;
 }

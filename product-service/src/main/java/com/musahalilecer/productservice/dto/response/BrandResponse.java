@@ -1,15 +1,17 @@
 package com.musahalilecer.productservice.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Data
-@NoArgsConstructor
+@Builder
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class BrandResponse {
+
     private Integer id;
     private String brandName;
     private Integer categoryId;
