@@ -2,7 +2,6 @@ package com.musahalilecer.productservice.service.service;
 
 import com.musahalilecer.productservice.dto.request.BrandRequest;
 import com.musahalilecer.productservice.dto.response.BrandResponse;
-import org.hibernate.validator.constraints.CodePointLength;
 
 import java.util.List;
 

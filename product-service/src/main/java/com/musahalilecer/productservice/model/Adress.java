@@ -12,6 +12,30 @@ import lombok.NoArgsConstructor;
 @Table(name = "adresses")
 public class Adress {
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    public String getAdressLocation() {
+        return adressLocation;
+    }
+
+    public void setAdressLocation(String adressLocation) {
+        this.adressLocation = adressLocation;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
