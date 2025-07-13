@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Eureka’daki tüm servisleri otomatik routelamak istersen:
+      # discovery:
+      #   locator:
+      #     enabled: true
+
+      # Elle route tanımları:
+      routes:
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/products/**
+          filters:
+            - RewritePath=/products/(?<segment>.*), /${segment}
+
+        - id: customer-service
+          uri: lb://customer-service
+          predicates:
+            - Path=/customers/**
+          filters:
+            - RewritePath=/customers/(?<segment>.*), /${segment}
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/orders/**
+          filters:
+            - RewritePath=/orders/(?<segment>.*), /${segment}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
