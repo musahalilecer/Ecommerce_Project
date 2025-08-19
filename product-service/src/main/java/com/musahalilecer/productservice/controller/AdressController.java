@@ -12,74 +12,40 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/adres")
+@RequestMapping("/addresses")
 public class AdressController {
 
     @Autowired
-    private AdressServiceImp adressService;
+    private AdressService adressService;
 
     @GetMapping
-    public ResponseEntity<List<AdressResponse>> getAllAdresses() {
-        try{
-            if(adressService.getAllAdresses().isEmpty()){
-                throw new NotFoundException("No adresses found");
-            }
-            List<AdressResponse> adresses = adressService.getAllAdresses();
-            return ResponseEntity.ok(adresses);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<List<AdressResponse>> getAll() {
+        return ResponseEntity.ok(adressService.getAllAdresses());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AdressResponse> getAdressById(@PathVariable int id) {
-        try{
-            AdressResponse adres = adressService.getAdressById(id);
-            if(adres == null){
-                throw new NotFoundException("Adress not found");
-            }
-            return ResponseEntity.ok(adres);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<AdressResponse> getById(@PathVariable int id) {
+        AdressResponse adres = adressService.getAdressById(id);
+        if (adres == null) throw new NotFoundException("Adress not found");
+        return ResponseEntity.ok(adres);
     }
+
     @PostMapping
-    public ResponseEntity<AdressResponse> addAdress(@RequestBody AdressRequest adressRequest) {
-        try{
-            AdressResponse adres = adressService.addAdress(adressRequest);
-            return ResponseEntity.ok(adres);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<AdressResponse> create(@RequestBody AdressRequest request) {
+        return ResponseEntity.ok(adressService.addAdress(request));
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<AdressResponse> updateAdress(@PathVariable int id, @RequestBody AdressRequest adressRequest) {
-        try{
-            AdressResponse foundAdres = adressService.getAdressById(id);
-            if(foundAdres == null){
-                throw new NotFoundException("Adress not found");
-            }
-            return ResponseEntity.ok(adressService.updateAdress(id, adressRequest));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<AdressResponse> update(@PathVariable int id, @RequestBody AdressRequest request) {
+        AdressResponse existing = adressService.getAdressById(id);
+        if (existing == null) throw new NotFoundException("Adress not found");
+        return ResponseEntity.ok(adressService.updateAdress(id, request));
     }
+
     @DeleteMapping("/{id}")
-    public void deleteAdress(@PathVariable int id) {
-        try{
-            adressService.deleteAdress(id);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            throw new NotFoundException("Adress not found");
-        }
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        adressService.deleteAdress(id);
+        return ResponseEntity.noContent().build();
     }
 }
+

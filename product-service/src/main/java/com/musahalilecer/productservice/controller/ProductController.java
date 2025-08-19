@@ -14,68 +14,41 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
+
     @Autowired
     private ProductService productService;
 
-    @GetMapping()
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        if(productService.getProducts().isEmpty()){
-            throw new NotFoundException("No products found");
-        }
-        List<ProductResponse> products = productService.getProducts();
-        return ResponseEntity.ok(products);
+    @GetMapping
+    public ResponseEntity<List<ProductResponse>> getAll() {
+        List<ProductResponse> list = productService.getProducts();
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(int id) {
-        try{
-            if(productService.getProductById(id) == null){
-                throw new NotFoundException("No product found");
-            }
-            ProductResponse product = productService.getProductById(id);
-            return ResponseEntity.ok(product);
-        }
-        catch(NotFoundException e){
-            throw new NotFoundException("Error");
-        }
-
+    public ResponseEntity<ProductResponse> getById(@PathVariable int id) {
+        ProductResponse product = productService.getProductById(id);
+        if (product == null) throw new NotFoundException("Product not found");
+        return ResponseEntity.ok(product);
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
-        try{
-            ProductResponse addPorduct = productService.addProduct(productRequest);
-            return ResponseEntity.ok(addPorduct);
-        }
-        catch(NotFoundException e){
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<ProductResponse> create(@RequestBody ProductRequest request) {
+        return ResponseEntity.ok(productService.addProduct(request));
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(int id, ProductRequest productRequest) {
-        try{
-            if(productService.getProductById(id) == null){
-                throw new NotFoundException("No product found");
-            }
-            ProductResponse updateProduct = productService.updateProduct(id, productRequest);
-            return ResponseEntity.ok(updateProduct);
-        }
-        catch (NotFoundException e){
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<ProductResponse> update(@PathVariable int id, @RequestBody ProductRequest request) {
+        ProductResponse existing = productService.getProductById(id);
+        if (existing == null) throw new NotFoundException("Product not found");
+        return ResponseEntity.ok(productService.updateProduct(id, request));
     }
+
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable int id) {
-        try{
-            if(productService.getProductById(id) == null){
-                throw new NotFoundException("No product found");
-            }
-            productService.getProductById(id);
-        }
-        catch (NotFoundException e){
-            throw new NotFoundException("Error for Delete Product");
-        }
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        ProductResponse existing = productService.getProductById(id);
+        if (existing == null) throw new NotFoundException("Product not found");
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }
+

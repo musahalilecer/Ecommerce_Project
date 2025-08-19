@@ -13,77 +13,39 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/brand")
+@RequestMapping("/brands")
 public class BrandController {
+
     @Autowired
-    private BrandServiceImp brandService;
+    private BrandService brandService;
 
     @GetMapping
-    public ResponseEntity<List<BrandResponse>> getAllBrands() {
-        try{
-            if(brandService.getAllBrands().isEmpty()) {
-                throw new NotFoundException("No Found");
-            }
-            List<BrandResponse> brands = brandService.getAllBrands();
-            return ResponseEntity.ok(brands);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<List<BrandResponse>> getAll() {
+        return ResponseEntity.ok(brandService.getAllBrands());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BrandResponse> getBrandById(@PathVariable int id) {
-        try{
-            BrandResponse brand = brandService.getBrandById(id);
-            if(brandService.getBrandById(id) == null) {
-                throw new NotFoundException("No Found");
-            }
-            return ResponseEntity.ok(brand);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<BrandResponse> getById(@PathVariable int id) {
+        BrandResponse brand = brandService.getBrandById(id);
+        if (brand == null) throw new NotFoundException("Brand not found");
+        return ResponseEntity.ok(brand);
     }
+
     @PostMapping
-    public ResponseEntity<BrandResponse> createBrand(@RequestBody BrandRequest brandRequest) {
-        try{
-            BrandResponse newBrand = brandService.addBrand(brandRequest);
-            return ResponseEntity.ok(newBrand);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<BrandResponse> create(@RequestBody BrandRequest request) {
+        return ResponseEntity.ok(brandService.addBrand(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BrandResponse> updateBrand(@PathVariable int id, @RequestBody BrandRequest brandRequest) {
-        try{
-            if(brandService.getBrandById(id) == null) {
-                throw new NotFoundException("No Found");
-            }
-            BrandResponse updatedBrand = brandService.updateBrand(brandRequest, id);
-            return ResponseEntity.ok(updatedBrand);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<BrandResponse> update(@PathVariable int id, @RequestBody BrandRequest request) {
+        BrandResponse existing = brandService.getBrandById(id);
+        if (existing == null) throw new NotFoundException("Brand not found");
+        return ResponseEntity.ok(brandService.updateBrand(request, id));
     }
+
     @DeleteMapping("/{id}")
-    public void deleteBrand(@PathVariable int id) {
-        try{
-            if(brandService.getBrandById(id) == null) {
-                throw new NotFoundException("No Found");
-            }
-            brandService.deleteBrand(id);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            throw new InternalServerErrorException("Internal Server Error");
-        }
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        brandService.deleteBrand(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -4,13 +4,7 @@ import com.musahalilecer.productservice.model.Country;
 import lombok.*;
 
 @Data
-@Builder
-@Getter
-@Setter
 public class AdressResponse {
-
-    public AdressResponse(String adressLocation, Country country) {
-    }
 
     public Integer getId() {
         return id;

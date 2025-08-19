@@ -7,6 +7,7 @@ import com.musahalilecer.productservice.mapper.BrandMapper;
 import com.musahalilecer.productservice.model.Brand;
 import com.musahalilecer.productservice.model.Category;
 import com.musahalilecer.productservice.model.Product;
+import com.musahalilecer.productservice.repository.BrandRepository;
 import com.musahalilecer.productservice.repository.CategoryRepository;
 import com.musahalilecer.productservice.repository.ProductRepository;
 import com.musahalilecer.productservice.service.service.BrandService;
@@ -28,11 +29,19 @@ public class BrandServiceImp implements BrandService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private BrandRepository brandRepository;
 
     @Override
     public List<BrandResponse> getAllBrands() {
         List<Brand> brands = brandDao.getAllBrands();
         return brands.stream().map(BrandMapper::toResponse).collect(Collectors.toList());
+    }
+
+    public BrandResponse findById(int id) {
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Brand not found"));
+        return BrandMapper.toResponse(brand);
     }
 
     @Override

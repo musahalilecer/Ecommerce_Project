@@ -9,6 +9,29 @@ import java.util.stream.Collectors;
 
 public class CountryMapper {
 
+    public static Country toEntity(CountryRequest request){
+        Country country = new Country();
+        country.setCountryName(request.getCountryName());
+        country.setFlag(request.getFlag());
+        // adresses set in service layer
+        return country;
+    }
+
+    public CountryResponse toResponse(Country country){
+        CountryResponse countryResponse = new CountryResponse();
+        countryResponse.setId(country.getId());
+        countryResponse.setCountryName(country.getCountryName());
+        countryResponse.setFlag(country.getFlag());
+        if (country.getAdresses() != null) {
+            List<Integer> adressIds = country.getAdresses().stream()
+                    .map(adress -> adress.getId())
+                    .collect(Collectors.toList());
+            countryResponse.setAdressIds(adressIds);
+        }
+        return countryResponse;
+    }
+
+    /*
     public static Country toEntity(CountryRequest req) {
         Country c = new Country();
         c.setCountryName(req.getCountryName());
@@ -32,4 +55,6 @@ public class CountryMapper {
         }
         return b.build();
     }
+
+     */
 }

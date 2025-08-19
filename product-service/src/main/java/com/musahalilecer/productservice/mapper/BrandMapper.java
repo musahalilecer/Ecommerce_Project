@@ -18,20 +18,21 @@ public class BrandMapper {
     }
 
     public static BrandResponse toResponse(Brand brand) {
-        BrandResponse.BrandResponseBuilder b = BrandResponse.builder()
-                .id(brand.getId())
-                .brandName(brand.getBrandName());
-
-        if (brand.getCategory() != null) {
-            b.categoryId(brand.getCategory().getId());
-        }
-        if (brand.getProducts() != null) {
-            b.productIds(
-                    brand.getProducts().stream()
-                            .map(p -> p.getId())
-                            .collect(Collectors.toList())
-            );
-        }
-        return b.build();
+        BrandResponse response = new BrandResponse();
+        response.setId(brand.getId());
+        response.setBrandName(brand.getBrandName());
+        response.setCategoryId(
+                Optional.ofNullable(brand.getCategory())
+                        .map(category -> category.getId())
+                        .orElse(null)
+        );
+        response.setProductIds(
+                Optional.ofNullable(brand.getProducts())
+                        .map(products -> products.stream()
+                                .map(product -> product.getId())
+                                .collect(Collectors.toList()))
+                        .orElse(List.of())
+        );
+        return response;
     }
 }

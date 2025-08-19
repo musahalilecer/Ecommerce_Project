@@ -14,75 +14,39 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/categories")
 public class CategoryController {
+
     @Autowired
-    private CategoryServiceImp categoryService;
+    private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
-        try{
-            if(categoryService.getAllCategories().isEmpty()){
-                throw new NotFoundException("Category not found");
-            }
-            List<CategoryResponse> categoryResponseList = categoryService.getAllCategories();
-            return ResponseEntity.ok(categoryResponseList);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<List<CategoryResponse>> getAll() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable int id) {
-        try{
-            if(categoryService.getCategoryById(id) == null){
-                throw new NotFoundException("Category not found");
-            }
-            CategoryResponse categoryResponse = categoryService.getCategoryById(id);
-            return ResponseEntity.ok(categoryResponse);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<CategoryResponse> getById(@PathVariable int id) {
+        CategoryResponse category = categoryService.getCategoryById(id);
+        if (category == null) throw new NotFoundException("Category not found");
+        return ResponseEntity.ok(category);
     }
+
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest categoryRequest) {
-        try{
-            CategoryResponse createdCategory = categoryService.addCategory(categoryRequest);
-            return ResponseEntity.ok(createdCategory);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<CategoryResponse> create(@RequestBody CategoryRequest request) {
+        return ResponseEntity.ok(categoryService.addCategory(request));
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable int id, @RequestBody CategoryRequest categoryRequest) {
-        try{
-            if(categoryService.getCategoryById(id) == null){
-                throw new NotFoundException("Category not found");
-            }
-            CategoryResponse updatedCategory = categoryService.updateCategory(id, categoryRequest);
-            return ResponseEntity.ok(updatedCategory);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<CategoryResponse> update(@PathVariable int id, @RequestBody CategoryRequest request) {
+        CategoryResponse existing = categoryService.getCategoryById(id);
+        if (existing == null) throw new NotFoundException("Category not found");
+        return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
+
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable int id) {
-        try{
-            if(categoryService.getCategoryById(id) == null){
-                throw new NotFoundException("Category not found");
-            }
-            categoryService.deleteCategory(id);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            throw new NotFoundException("Internal Server Error");
-        }
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 }

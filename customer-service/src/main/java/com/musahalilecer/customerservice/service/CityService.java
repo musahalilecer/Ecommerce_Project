@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 public class CityService {
     @Autowired
     private CityRepository cityRepository;
-    @Autowired
-    private CityMapper cityMapper;
+
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
@@ -32,17 +31,17 @@ public class CityService {
 
     public List<CityResponse> getAllCities() {
         List<City> cities = cityRepository.findAll();
-        return cities.stream().map(cityMapper::toResponse)
+        return cities.stream().map(CityMapper::toResponse)
                 .collect(Collectors.toList());
     }
     public CityResponse getCityById(int id) {
         City city = cityRepository.findById(id).orElseThrow(() -> new NotFoundException("City not found"));
-        return cityMapper.toResponse(city);
+        return CityMapper.toResponse(city);
     }
 
     @Transactional
     public CityResponse createCity(CityRequest request) {
-        City city = cityMapper.toEntity(request);
+        City city = CityMapper.toEntity(request);
         Country country = countryRepository.findById(request.getCountryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found"));
         city.setCountry(country);
@@ -51,7 +50,7 @@ public class CityService {
             city.setCustomers(custs);
         }
         City saved = cityRepository.save(city);
-        CityResponse dto = cityMapper.toResponse(saved);
+        CityResponse dto = CityMapper.toResponse(saved);
         dto.setCustomerIds(saved.getCustomers().stream().map(Customer::getId).toList());
         return dto;
     }
@@ -65,7 +64,7 @@ public class CityService {
         city.setCountry(country);
         city.setCustomers(customers);
         City savedCity = cityRepository.save(city);
-        return cityMapper.toResponse(savedCity);
+        return CityMapper.toResponse(savedCity);
     }
 
     @Transactional

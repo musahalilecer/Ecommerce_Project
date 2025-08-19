@@ -17,10 +17,16 @@ public class AdresMapper {
     }
 
     public static AdressResponse toResponse(Adress adress) {
-        return new AdressResponse(
-                adress.getAdressLocation(),
-                adress.getCountry()
+        AdressResponse adressResponse = new AdressResponse();
+        adressResponse.setId(adress.getId());
+        adressResponse.setAdressLocation(adress.getAdressLocation());
+        adressResponse.setCountryId(
+                Optional.ofNullable(adress.getCountry())
+                        .map(country -> country.getId())
+                        .orElse(null)
         );
+        return adressResponse;
+
         /*
         AdressResponse.AdressResponseBuilder b = AdressResponse.builder()
                 .id(adress.getId())

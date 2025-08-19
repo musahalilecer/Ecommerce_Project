@@ -9,7 +9,6 @@ import com.musahalilecer.customerservice.model.Customer;
 import com.musahalilecer.customerservice.repository.CityRepository;
 import com.musahalilecer.customerservice.repository.CountryRepository;
 import com.musahalilecer.customerservice.repository.CustomerRepository;
-import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,7 @@ import java.util.stream.Collectors;
 public class CountryService {
     @Autowired
     private CountryRepository countryRepository;
-    @Autowired
-    private CountryMapper countryMapper;
+
     @Autowired
     private CityRepository cityRepository;
     @Autowired
@@ -33,7 +31,7 @@ public class CountryService {
     public List<CountryResponse> getAllCountries() {
         return countryRepository.findAll().stream()
                 .map(country -> {
-                    CountryResponse dto = countryMapper.toResponse(country);
+                    CountryResponse dto = CountryMapper.toResponse(country);
                     List<Integer> cityIds = country.getCities() != null
                             ? country.getCities().stream().map(City::getId).collect(Collectors.toList())
                             : List.of();
@@ -50,7 +48,7 @@ public class CountryService {
     public CountryResponse getCountryById(int id) {
         Country country = countryRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found: " + id));
-        CountryResponse dto = countryMapper.toResponse(country);
+        CountryResponse dto = CountryMapper.toResponse(country);
         List<Integer> cityIds = country.getCities() != null
                 ? country.getCities().stream().map(City::getId).collect(Collectors.toList())
                 : List.of();
@@ -64,7 +62,7 @@ public class CountryService {
 
     @Transactional
     public CountryResponse createCountry(CountryRequest request) {
-        Country country = countryMapper.toEntity(request);
+        Country country = CountryMapper.toEntity(request);
         if (request.getCityIds() != null) {
             List<City> cities = cityRepository.findAllById(request.getCityIds());
             country.setCities(cities);
@@ -74,7 +72,7 @@ public class CountryService {
             country.setCustomers(customers);
         }
         Country saved = countryRepository.save(country);
-        CountryResponse dto = countryMapper.toResponse(saved);
+        CountryResponse dto = CountryMapper.toResponse(saved);
         List<Integer> cityIds = saved.getCities() != null
                 ? saved.getCities().stream().map(City::getId).collect(Collectors.toList())
                 : List.of();
@@ -102,7 +100,7 @@ public class CountryService {
             country.setCustomers(customers);
         }
         Country saved = countryRepository.save(country);
-        CountryResponse dto = countryMapper.toResponse(saved);
+        CountryResponse dto = CountryMapper.toResponse(saved);
         List<Integer> cityIds = saved.getCities() != null
                 ? saved.getCities().stream().map(City::getId).collect(Collectors.toList())
                 : List.of();

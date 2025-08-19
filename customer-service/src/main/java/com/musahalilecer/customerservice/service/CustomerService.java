@@ -10,7 +10,6 @@ import com.musahalilecer.customerservice.repository.CityRepository;
 import com.musahalilecer.customerservice.repository.CountryRepository;
 import com.musahalilecer.customerservice.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,7 @@ import java.util.stream.Collectors;
 public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
-    @Autowired
-    private CustomerMapper customerMapper;
+
     @Autowired
     private CountryRepository countryRepository;
     @Autowired
@@ -32,19 +30,19 @@ public class CustomerService {
 
     public List<CustomerResponse> getAllCustomers() {
         return customerRepository.findAll().stream()
-                .map(customerMapper::toResponse)
+                .map(CustomerMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     public CustomerResponse getCustomerById(int id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
-        return customerMapper.toResponse(customer);
+        return CustomerMapper.toResponse(customer);
     }
 
     @Transactional
     public CustomerResponse createCustomer(CustomerRequest request) {
-        Customer customer = customerMapper.toEntity(request);
+        Customer customer = CustomerMapper.toEntity(request);
         Country country = countryRepository.findById(request.getCountryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Country not found"));
         City city = cityRepository.findById(request.getCityId())
@@ -52,7 +50,7 @@ public class CustomerService {
         customer.setCountry(country);
         customer.setCity(city);
         Customer saved = customerRepository.save(customer);
-        return customerMapper.toResponse(saved);
+        return CustomerMapper.toResponse(saved);
     }
 
     @Transactional
@@ -74,7 +72,7 @@ public class CustomerService {
         existing.setCountry(country);
         existing.setCity(city);
         Customer updated = customerRepository.save(existing);
-        return customerMapper.toResponse(updated);
+        return CustomerMapper.toResponse(updated);
     }
 
     @Transactional

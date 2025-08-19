@@ -29,15 +29,13 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ApiErrorResponse> buildErrorResponse(HttpStatus status, String message, String path) {
-        return new ResponseEntity<>(
-                ApiErrorResponse.builder()
-                        .timestamp(LocalDate.from(LocalDateTime.now()))
-                        .status(status.value())
-                        .error(status.getReasonPhrase())
-                        .message(message)
-                        .path(path)
-                        .build(),
-                status
-        );
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+        apiErrorResponse.setTimestamp(LocalDate.now());
+        apiErrorResponse.setStatus(status.value());
+        apiErrorResponse.setError(status.getReasonPhrase());
+        apiErrorResponse.setMessage(message);
+        apiErrorResponse.setPath(path);
+
+        return new ResponseEntity<>(apiErrorResponse, status);
     }
 }

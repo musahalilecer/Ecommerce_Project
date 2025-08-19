@@ -11,70 +11,37 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/country")
+@RequestMapping("/countries")
 public class CountryController {
+
     @Autowired
     private CountryService countryService;
 
     @GetMapping
-    public ResponseEntity<List<CountryResponse>> getAllCountries() {
-        try{
-            List<CountryResponse> list = countryService.getAllCountries();
-            if(list.isEmpty()){
-                throw new NotFoundException("Not Found");
-            }
-
-            return ResponseEntity.ok(list);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.noContent().build();
-        }
+    public ResponseEntity<List<CountryResponse>> getAll() {
+        return ResponseEntity.ok(countryService.getAllCountries());
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<CountryResponse> getCountryById(@PathVariable int id){
-        try{
-            CountryResponse findCountry = countryService.getCountryById(id);
-            if(findCountry == null){
-                throw new NotFoundException("Not Found");
-            }
-            return ResponseEntity.ok(findCountry);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<CountryResponse> getById(@PathVariable int id) {
+        CountryResponse country = countryService.getCountryById(id);
+        if (country == null) throw new NotFoundException("Country not found");
+        return ResponseEntity.ok(country);
     }
-    @PostMapping
-    public ResponseEntity<CountryResponse> createCountry(@RequestBody CountryRequest countryRequest){
-        try{
-            CountryResponse newCountry = countryService.addCountry(countryRequest);
-            return ResponseEntity.ok(newCountry);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-    }
-    @PutMapping("/{id}")
-    public ResponseEntity<CountryResponse> updateCountry(@PathVariable int id, @RequestBody CountryRequest countryRequest){
-        try{
-            CountryResponse updatedCountry = countryService.updateCountry(id, countryRequest);
-            return ResponseEntity.ok(updatedCountry);
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-    }
-    @DeleteMapping("/id")
-    public void deleteCountry(@PathVariable int id){
-        try{
-            countryService.deleteCountry(id);
-        }
-        catch(Exception e){
-            e.printStackTrace();
 
-        }
+    @PostMapping
+    public ResponseEntity<CountryResponse> create(@RequestBody CountryRequest request) {
+        return ResponseEntity.ok(countryService.addCountry(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CountryResponse> update(@PathVariable int id, @RequestBody CountryRequest request) {
+        return ResponseEntity.ok(countryService.updateCountry(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        countryService.deleteCountry(id);
+        return ResponseEntity.noContent().build();
     }
 }
